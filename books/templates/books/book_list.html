@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block head_title %}
+  All Books
+{% endblock head_title %}
+{% block content %}
+  <h1>All Books</h1>
+  <ul>
+    {% for book in books %}
+      <li>
+        <h2>{{ book.title }}</h2>
+        <p>Author: {{ book.author }}</p>
+        <p>Publisher: {{ book.publisher }}</p>
+        <p>Date of Publication: {{ book.date_of_publication }}</p>
+        <p>Description: {{ book.description }}</p>
+        <img src="{{ book.image.url }}" alt="{{ book.title }}" width="25%">
+        <p>Borrowing Price: {{ book.borrowing_price }}</p>
+        <p>Categories: {{ book.categories.all|join:", " }}</p>
+        <a href="{% url 'book_details' pk=book.pk %}">Details</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock content %}

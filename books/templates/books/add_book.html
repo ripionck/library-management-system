@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}{{name}}{% endblock title %}
+{% block content %}
+
+<div class="w-50 m-auto my-5 border rounded ">
+    {% if messages %}
+    {% for msg in messages %}
+    <p class="text-{{msg.tags}} fs-3">{{msg}}</p>
+    {% endfor %}
+    {% endif %}
+    <h1 class="p-5 text-warning">{{name}}</h1>
+    <form method="post" class="px-5">
+        {% csrf_token %}
+        <!--{{form|crispy}}-->
+        {% for fm in form %}
+        {{fm.label_tag}}
+        {{fm}}
+        {{fm.errors|striptags}}
+        <br>
+        {% endfor %}
+        {% if type == '1' %}
+        <button type="submit" class="btn btn-warning my-5">Submit</button>
+        {% elif type == '2' %}
+        <button type="submit" class="btn btn-primary my-5">LogIn</button>
+        {% elif type == '3' or type == '4' %}
+        <button type="submit" class="btn btn-warning my-5">Update</button>
+        {% endif %}
+    </form>
+</div>
+
+
+{% endblock content %}

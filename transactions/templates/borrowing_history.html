@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block head_title %}
+  Borrow History
+{% endblock head_title %}
+{% block content %}
+  <ul>
+    {% for transaction in transactions %}
+      <li>
+        <p>{{ transaction.book.title }} - Borrowed on: {{ transaction.timestamp|date:"F d, Y h:i A" }}</p>
+        {% if not transaction.returned %}
+          <form method="post" action="{% url 'return_book' pk=transaction.pk %}">
+            {% csrf_token %}
+            <button type="submit">Return</button>
+          </form>
+        {% else %}
+          <button type="button" disabled>Returned</button>
+        {% endif %}
+        <!-- Add other transaction information as needed -->
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock content %}
