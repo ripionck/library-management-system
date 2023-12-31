@@ -1,8 +1,6 @@
-# Import necessary modules and classes from Django
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
 from .constants import GENDER_TYPE, PROFESSION_TYPE
 from .models import UserProfile
 

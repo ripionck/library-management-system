@@ -14,15 +14,15 @@
     <!-- Tailwind CSS Link -->
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="h-screen">
-    {% include 'navbar.html' %}
+  <body>
+    {% include "navbar.html" %}
     {% block body %}
       <div class="bg-sky-100" id="main">
-        {% include 'messages.html' %}
+        {% include "messages.html" %}
         {% block content %}
         {% endblock content %}
       </div>
-      {% include 'footer.html' %}
+      {% include "footer.html" %}
     {% endblock body %}
   </body>
 </html>

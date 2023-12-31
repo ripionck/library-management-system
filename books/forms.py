@@ -1,5 +1,5 @@
 from django import forms
-from .models import Book, Category
+from .models import Book, Review
 
 class AddBookForm(forms.ModelForm):
     
@@ -9,3 +9,8 @@ class AddBookForm(forms.ModelForm):
         widgets = {
             'categories' : forms.CheckboxSelectMultiple
         }
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'comment']

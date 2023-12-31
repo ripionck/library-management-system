@@ -1,9 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.views import View
 from django.views.generic import CreateView, DetailView, ListView
 from django.urls import reverse_lazy
-from .forms import AddBookForm
+from .forms import AddBookForm, ReviewForm
 from django.contrib import messages
-from .models import Book
+from .models import Book, Review
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 # Email Sending Function
@@ -44,4 +47,28 @@ class BookDetailsView(DetailView):
     model = Book
     template_name = 'books/book_details.html'
     context_object_name = 'book'
-    
+
+@method_decorator(login_required, name='dispatch')
+class CreateReviewView(View):
+    template_name = 'books/create_review.html'
+
+    def get(self, request, book_id):
+        book = get_object_or_404(Book, id=book_id)
+        form = ReviewForm()
+        return render(request, self.template_name, {'book': book, 'form': form})
+
+    def post(self, request, book_id):
+        book = get_object_or_404(Book, id=book_id)
+        form = ReviewForm(request.POST)
+
+        if form.is_valid():
+            rating = form.cleaned_data['rating']
+            comment = form.cleaned_data['comment']
+
+            Review.objects.create(user=request.user.userprofile, book=book, rating=rating, comment=comment)
+
+            # You may want to add a success message or redirect to the book detail page
+            return redirect('book_detail', book_id=book.id)
+
+        # If form is not valid, render the form again with errors
+        return render(request, self.template_name, {'book':book, 'form': form})

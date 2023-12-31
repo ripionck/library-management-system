@@ -6,7 +6,7 @@ from decimal import Decimal
 from django.db.models import F
 from books.models import Book
 from django.contrib.auth.decorators import login_required
-from users.models import Review
+from books.models import Review
 from users.models import UserProfile
 
 def deposit_money(request):

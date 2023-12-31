@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block head_title %}
+  {{ book.title }}
+{% endblock head_title %}
+{% block content %}
+  <div class="mx-8 py-12">
+    <div class="flex">
+      <img src="{{ book.image.url }}"
+           alt="{{ book.title }}"
+           class="w-64 h-82 object-cover">
+      <div class="ml-8">
+        <h1 class="font-bold text-2xl pt-4 pb-4">{{ book.title }}</h1>
+        <p class="pb-4">Author: {{ book.author }}</p>
+        <p class="pb-4">Publisher: {{ book.publisher }}</p>
+        <p class="pb-4">Date of Publication: {{ book.date_of_publication|date:"F d, Y" }}</p>
+        <p class="pb-4">Description: {{ book.description }}</p>
+        <p class="pb-4">Price: {{ book.borrowing_price }} $</p>
+      </div>
+    </div>
+    <hr class="border-2 my-4 text-orange-700" />
+    <!-- Display existing reviews if any -->
+    {% if book.reviews.all %}
+      <h2 class="font-bold text-xl pb-2">Total Reviews: {{ book.reviews.all | length }}</h2>
+      <ul>
+        {% for review in book.reviews.all %}
+          <li>
+            <strong>{{ review.user }}</strong>
+            <p>Rating: {{ review.rating }}</p>
+            <p>{{ review.comment }}</p>
+            <p>{{ review.created_at|date:"F d, Y" }}</p>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No reviews yet.</p>
+    {% endif %}
+    <hr class="border-2 my-4 text-orange-700" />
+    <!-- Comment Form -->
+    <form method="post" action="{% url 'book_review' book.id %}">
+      {% csrf_token %}
+      <label for="id_comment">Comment:</label>
+      <textarea name="comment" id="id_comment" rows="4" required></textarea>
+      <br>
+      <button type="submit">Submit Review</button>
+    </form>
+  </div>
+{% endblock content %}

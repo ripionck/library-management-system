@@ -3,18 +3,26 @@
   {{ book.title }}
 {% endblock head_title %}
 {% block content %}
-  <h1>{{ book.title }} Details</h1>
-  <p>Author: {{ book.author }}</p>
-  <p>Publisher: {{ book.publisher }}</p>
-  <p>Date of Publication: {{ book.date_of_publication }}</p>
-  <p>Description: {{ book.description }}</p>
-  <p>Price: {{ book.borrowing_price }} $</p>
-  {% if user.is_authenticated %}
-    <form method="post" action="{% url 'borrow_book' pk=book.pk %}">
-      {% csrf_token %}
-      <button type="submit" class="text-orange-600">Borrow Book</button>
-    </form>
-  {% else %}
-    <p>Login to borrow this book.</p>
-  {% endif %}
+  <div class="flex h-screen mx-8 py-12">
+    <img src="{{ book.image.url }}"
+         alt="{{ book.title }}"
+         class="w-72 h-96 object-cover">
+    <div class="ml-8">
+      <h1 class="font-bold text-2xl pt-4 pb-4">{{ book.title }} Details</h1>
+      <p class="pb-4">Author: {{ book.author }}</p>
+      <p class="pb-4">Publisher: {{ book.publisher }}</p>
+      <p class="pb-4">Date of Publication: {{ book.date_of_publication|date:"F d, Y" }}</p>
+      <p class="pb-4">Description: {{ book.description }}</p>
+      <p class="pb-4">Price: {{ book.borrowing_price }} $</p>
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'borrow_book' pk=book.pk %}">
+          {% csrf_token %}
+          <button type="submit"
+                  class="text-orange-600 border-0 bg-gray-300 px-2 py-2 rounded hover:bg-gray-500">Borrow Book</button>
+        </form>
+      {% else %}
+        <a class="text-orange-600" href="{% url 'user_login' %}">Login to borrow this book.</a>
+      {% endif %}
+    </div>
+  </div>
 {% endblock content %}

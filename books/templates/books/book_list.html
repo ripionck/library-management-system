@@ -3,30 +3,32 @@
   All Books
 {% endblock head_title %}
 {% block content %}
-  <h1>All Books</h1>
-  <div class="grid gap-x-8 gap-y-4 grid-cols-3">
-    {% for book in books %}
-      <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white">
-        <img src="{{ book.image.url }}"
-             alt="{{ book.title }}"
-             class="w-full h-48 object-cover">
-        <div class="px-6">
-          <div class="font-bold text-xl">{{ book.title }}</div>
-          <p class="text-gray-700 text-base">Author: {{ book.author }}</p>
+  <div class="h-screen">
+    <div class="grid gap-x-8 gap-y-4 grid-cols-4 px-8 pt-8">
+      {% for book in books %}
+        <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white">
+          <img src="{{ book.image.url }}" alt="{{ book.title }}" class="w-full h-72">
+          <div class="px-6">
+            <div class="font-bold text-xl">{{ book.title }}</div>
+            <p class="text-gray-700 text-base">Author: {{ book.author }}</p>
+          </div>
+          <div class="px-6">
+            <p class="text-gray-600 text-base">Publisher: {{ book.publisher }}</p>
+          </div>
+          <div class="px-6">
+            <p class="text-gray-600 text-base">Borrowing Price: {{ book.borrowing_price }} $</p>
+          </div>
+          <div class="px-6">
+            <p class="text-gray-600 text-base">
+              Categories: <span class="text-sm text-orange-600 border-0 px-1.5 py-0.5 bg-sky-100 rounded">{{ book.categories.all|join:", " }}</span>
+            </p>
+          </div>
+          <div class="px-6 pb-4 pt-4">
+            <a class="btn btn-sm text-orange-600 border-0 bg-gray-300 px-4 py-2 rounded hover:bg-gray-500"
+               href="{% url 'book_details' pk=book.pk %}">Details</a>
+          </div>
         </div>
-        <div class="px-6">
-          <p class="text-gray-600 text-sm">Publisher: {{ book.publisher }}</p>
-        </div>
-        <div class="px-6">
-          <p class="text-gray-600 text-sm">Borrowing Price: {{ book.borrowing_price }} $</p>
-        </div>
-        <div class="px-6">
-          <p class="text-gray-600 text-sm">Categories: {{ book.categories.all|join:", " }}</p>
-        </div>
-        <div class="px-6 pb-2 text-orange-700">
-          <a href="{% url 'book_details' pk=book.pk %}">Details</a>
-        </div>
-      </div>
-    {% endfor %}
+      {% endfor %}
+    </div>
   </div>
 {% endblock content %}
