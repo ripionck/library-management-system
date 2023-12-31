@@ -12,13 +12,12 @@
       {% endblock head_title %}
     </title>
     <!-- Tailwind CSS Link -->
-    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css"
-          rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="h-screen">
     {% include 'navbar.html' %}
     {% block body %}
-      <div class="" id="main">
+      <div class="bg-sky-100" id="main">
         {% include 'messages.html' %}
         {% block content %}
         {% endblock content %}

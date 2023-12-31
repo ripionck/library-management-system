@@ -4,19 +4,29 @@
 {% endblock head_title %}
 {% block content %}
   <h1>All Books</h1>
-  <ul>
+  <div class="grid gap-x-8 gap-y-4 grid-cols-3">
     {% for book in books %}
-      <li>
-        <h2>{{ book.title }}</h2>
-        <p>Author: {{ book.author }}</p>
-        <p>Publisher: {{ book.publisher }}</p>
-        <p>Date of Publication: {{ book.date_of_publication }}</p>
-        <p>Description: {{ book.description }}</p>
-        <img src="{{ book.image.url }}" alt="{{ book.title }}" width="25%">
-        <p>Borrowing Price: {{ book.borrowing_price }}</p>
-        <p>Categories: {{ book.categories.all|join:", " }}</p>
-        <a href="{% url 'book_details' pk=book.pk %}">Details</a>
-      </li>
+      <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white">
+        <img src="{{ book.image.url }}"
+             alt="{{ book.title }}"
+             class="w-full h-48 object-cover">
+        <div class="px-6">
+          <div class="font-bold text-xl">{{ book.title }}</div>
+          <p class="text-gray-700 text-base">Author: {{ book.author }}</p>
+        </div>
+        <div class="px-6">
+          <p class="text-gray-600 text-sm">Publisher: {{ book.publisher }}</p>
+        </div>
+        <div class="px-6">
+          <p class="text-gray-600 text-sm">Borrowing Price: {{ book.borrowing_price }} $</p>
+        </div>
+        <div class="px-6">
+          <p class="text-gray-600 text-sm">Categories: {{ book.categories.all|join:", " }}</p>
+        </div>
+        <div class="px-6 pb-2 text-orange-700">
+          <a href="{% url 'book_details' pk=book.pk %}">Details</a>
+        </div>
+      </div>
     {% endfor %}
-  </ul>
+  </div>
 {% endblock content %}

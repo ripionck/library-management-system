@@ -3,20 +3,51 @@
   Borrow History
 {% endblock head_title %}
 {% block content %}
-  <ul>
-    {% for transaction in transactions %}
-      <li>
-        <p>{{ transaction.book.title }} - Borrowed on: {{ transaction.timestamp|date:"F d, Y h:i A" }}</p>
-        {% if not transaction.returned %}
-          <form method="post" action="{% url 'return_book' pk=transaction.pk %}">
-            {% csrf_token %}
-            <button type="submit">Return</button>
-          </form>
-        {% else %}
-          <button type="button" disabled>Returned</button>
-        {% endif %}
-        <!-- Add other transaction information as needed -->
-      </li>
+  <table class="table-auto mx-auto w-full px-5 rounded-xl mt-8 border dark:border-neutral-500">
+    <thead class="bg-purple-500 text-white text-left">
+      <tr class="bg-cyan-600 rounded-md py-2 px-4 text-white font-bold">
+        <th class="px-4 py-2">Date</th>
+        <th class="px-4 py-2">Title</th>
+        <th class="px-4 py-2">Borrowing Price</th>
+        <th class="px-4 py-2">Status</th>
+      </tr>
+    </thead>
+    {% comment %} <tbody> {% endcomment %}
+    {% comment %}
+        <tr class="border-b dark:border-neutral-500">
+          <td class="px-4 py-2">{{ transaction.timestamp|date:"F d, Y h:i A" }}</td>
+          <td class="px-4 py-3 text-s border">
+            <span class="px-2 py-1 font-bold leading-tight rounded-sm {% if transaction.get_transaction_type_display == 'Withdrawal' %} text-red-700 bg-red-100 {% elif transaction.get_transaction_type_display == 'Deposite' %} text-green-700 bg-green-100 {% else %} text-yellow-700 bg-yellow-100 {% endif %}">
+              {{ transaction.get_transaction_type_display }}
+            </span>
+          </td>
+          <td class="px-4 py-2">$ {{ transaction.amount|floatformat:2|intcomma }}</td>
+          <td class="px-4 py-2">$ {{ transaction.balance_after_transaction|floatformat:2|intcomma }}</td>
+        </tr>
+      {% endfor %}
+      <tr class="bg-gray-800 text-white">
+        <th class="px-4 py-2 text-right" colspan="3">Current Balance</th>
+        <th class="px-4 py-2 text-left">$ {{ account.balance|floatformat:2|intcomma }}</th>
+      </tr>
+    </tbody> {% endcomment %}
+    <tbody>
+      {% for transaction in transactions %}
+        <tr>
+          <td>{{ transaction.timestamp|date:"F d, Y h:i A" }}</td>
+          <td>{{ transaction.book.title }}</td>
+          <td>{{ transaction.amount }}</td>
+          <td>
+            {% if not transaction.returned %}
+              <form method="post" action="{% url 'return_book' pk=transaction.pk %}">
+                {% csrf_token %}
+                <button type="submit">Return</button>
+              </form>
+            {% else %}
+              <button type="button" disabled>Returned</button>
+            {% endif %}
+          </td>
+        </tr>
+      </tbody>
     {% endfor %}
-  </ul>
+  </table>
 {% endblock content %}

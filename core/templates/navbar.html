@@ -1,4 +1,4 @@
-<nav class="bg-gray-800 p-4">
+<nav class="bg-sky-700 p-4">
   <div class="container mx-auto flex justify-between items-center">
     <div class="text-white text-2xl">
       <a href="{% url 'home' %}">Library Management System</a>
@@ -12,16 +12,13 @@
              class="text-white text-xl hover:text-orange-700">Profile</a>
           <a href="{% url 'borrow_history' %}"
              class="text-white text-xl mx-4 hover:text-orange-700">History</a>
-          <form action="{% url 'user_logout' %}"
-                method="post"
-                class="inline text-xl hover:text-orange-700">
+          <form action="{% url 'user_logout' %}" method="post" class="inline text-xl">
             {% csrf_token %}
             <button type="submit"
                     class="btn btn-link text-white text-xl hover:text-orange-700">Logout</button>
           </form>
         </div>
       {% else %}
-        hover:text-orange-700
         <div class="ml-4">
           <a href="{% url 'user_register' %}"
              class="text-white text-xl mr-4 hover:text-orange-700">Register</a>
