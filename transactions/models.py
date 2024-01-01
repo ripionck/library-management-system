@@ -12,7 +12,7 @@ class Transaction(models.Model):
         max_digits=12, decimal_places=2, null=True, blank=True)
     transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPE)  
     timestamp = models.DateTimeField(auto_now_add=True)
-    returned = models.BooleanField(default=False)  
+    is_returned = models.BooleanField(default=False)  
     
     def __str__(self):
-        return f'{self.account} - {self.amount}'
+        return f'{self.transaction_type} - {self.amount}'

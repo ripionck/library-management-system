@@ -37,6 +37,7 @@ class BorrowBookView(View):
             # Decrease user's balance
             user.balance -= borrowing_price
             user.save()
+            print(user)
 
             # Add book to borrow history
             Transaction.objects.create(account=user, book=book, transaction_type='Borrow')
@@ -66,6 +67,7 @@ class ReturnBookView(View):
     def post(self, request, pk):
         # Get the transaction for the given primary key
         transaction = get_object_or_404(Transaction, pk=pk)
+        print(transaction)
 
         # Check if the book has already been returned
         if transaction.returned:
@@ -122,3 +124,71 @@ class CreateReviewView(View):
 
         # If form is not valid, render the form again with errors
         return render(request, self.template_name, {'book': book, 'form': form})
+    
+
+# class BorrowBookView(LoginRequiredMixin, View):
+#     def get(self, request, id):
+#         book = Book.objects.get(pk=id)
+#         buyer = self.request.user.profile
+
+#         # Check if the user has already borrowed the same book and it's not returned
+#         existing_borrow_book = Transaction.objects.filter(profile=buyer, book=book, is_returned=False).first()
+
+#         if existing_borrow_book:
+#             messages.error(self.request, 'You have already borrowed this book. You cannot borrow the same book twice at the same time.')
+#             return redirect('details_book', pk=id)
+#         else:
+#             if book.quantity > 0:
+#                 if buyer.balance >= book.price:
+#                     buyer.balance -= book.price
+#                     buyer.save()
+
+#                     book.quantity -= 1
+#                     book.save()
+
+#                     transaction = Transaction(
+#                         profile=buyer,
+#                         amount=book.price,
+#                         balance_after_transaction=buyer.balance,
+#                         transaction_type=BORROW_BOOK,
+#                         book=book
+#                     )
+#                     transaction.save()
+
+#                     messages.success(self.request, f'You have successfully borrowed {book.name} book.')
+#                     send_transaction_email(self.request.user, book.price, 'Borrow Book Confirmation', 'borrow_book_mail.html', book_name = book.name)
+#                     return redirect('profile')
+#                 else:
+#                     messages.error(self.request, "Your current balance is lower than the book price. Deposit Money.")
+#                     return redirect('deposit_money')
+#             else:
+#                 messages.error(self.request, "Sorry, this book is out of stock.")
+#                 return redirect('details_book', pk=id)
+
+# class ReturnBookView(LoginRequiredMixin, View):
+    def get(self, request, id):
+        book = Book.objects.get(pk=id)
+        buyer = self.request.user.profile
+        borrowed_book = Transaction.objects.get(profile=buyer, book=book, is_returned=False)
+        print(borrowed_book.id)
+        if not borrowed_book.is_returned:
+            borrowed_book.is_returned = True
+            borrowed_book.save()            
+            buyer.balance += book.price
+            buyer.save()
+            messages.success(self.request, 'Return Successfull')
+            book.quantity +=1
+            book.save()
+            transaction = Transaction(
+                profile = buyer,
+                amount = book.price,
+                balance_after_transaction = buyer.balance,
+                transaction_type = RETURN_BOOK,
+                book = book,
+                is_returned = True
+            )
+            transaction.save()
+            return redirect('profile')
+        else:
+            messages.error(self.request, 'Already Returned')
+            return redirect('profile')

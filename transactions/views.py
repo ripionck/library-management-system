@@ -1,7 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import CreateView
 from .models import Transaction
 from decimal import Decimal
+from django.urls import reverse_lazy
+from .constants import DEPOSIT
+from .forms import DepositForm
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
@@ -19,29 +24,29 @@ def send_transaction_email(user, amount, subject, template):
         
 
 # Write your views here
-def deposit_money(request):
-    if request.method == 'POST':
-        amount_str = request.POST.get('amount')
-        if amount_str:
-            # Convert the string amount to Decimal
-            amount = Decimal(amount_str)
-            
-            # Get the UserProfile instance
-            user = UserProfile.objects.get(user=request.user)
-            
-            # Update the balance in the UserProfile
-            user.balance += amount
-            user.save()
-
-            # Use the associated User instance for the Transaction
-            Transaction.objects.create(account=user, amount=amount, transaction_type='Deposit')
-
-            send_transaction_email(request.user, amount,
+class DepositView(LoginRequiredMixin, CreateView):
+    template_name = 'deposit_money.html'
+    form_class = DepositForm
+    success_url = reverse_lazy('user_profile')
+    
+    def form_valid(self, form):
+        amount = form.cleaned_data.get('amount')
+        account = self.request.user.profile
+        account.balance += amount
+        account.save(
+            update_fields=[
+                'balance'
+            ]
+        )
+        transaction_obj = form.save(commit=False)
+        transaction_obj.account = account
+        transaction_obj.transaction_type = DEPOSIT
+        transaction_obj.balance_after_transaction = account.balance
+        transaction_obj.save()
+        messages.success(
+            self.request,
+            f'{"{:,.2f}".format(float(amount))}$ was deposited to your account successfully'
+        )
+        send_transaction_email(self.request.user, amount,
                                "Deposite Message", "deposit_email.html")
-            
-            # Send email here (use Django's EmailMessage)
-            messages.success(request, 'Deposit successful.')
-            return redirect('user_profile')
-
-    return render(request, 'deposit_money.html')
-
+        return super().form_valid(form)
