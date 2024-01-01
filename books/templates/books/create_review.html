@@ -36,12 +36,11 @@
     {% endif %}
     <hr class="border-2 my-4 text-orange-700" />
     <!-- Comment Form -->
-    <form method="post" action="{% url 'book_review' book.id %}">
+    <h4 class="text-center py-2">Leave Your Comment</h4>
+    <form method="post" class="w-1/2">
       {% csrf_token %}
-      <label for="id_comment">Comment:</label>
-      <textarea name="comment" id="id_comment" rows="4" required></textarea>
-      <br>
-      <button type="submit">Submit Review</button>
+      {{ form }}
+      <button class="btn btn-outline-warning">Submit</button>
     </form>
   </div>
 {% endblock content %}

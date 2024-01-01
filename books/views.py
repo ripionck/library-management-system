@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 from .forms import AddBookForm, ReviewForm
 from django.contrib import messages
 from .models import Book, Review
+from users.models import UserProfile
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 # Email Sending Function
@@ -43,6 +44,19 @@ class BookListView(ListView):
     template_name = 'book_list.html'
     context_object_name = 'books'
     
+    def get(self, request):
+        books_with_reviews = []
+
+        # Retrieve all books
+        all_books = Book.objects.all()
+
+        # Iterate through each book and retrieve its reviews
+        for book in all_books:
+            reviews = Review.objects.filter(book=book)
+            books_with_reviews.append({'book': book, 'reviews': reviews})
+
+        return render(request, self.template_name, {'books_with_reviews': books_with_reviews})
+    
 class BookDetailsView(DetailView):
     model = Book
     template_name = 'books/book_details.html'
@@ -65,10 +79,13 @@ class CreateReviewView(View):
             rating = form.cleaned_data['rating']
             comment = form.cleaned_data['comment']
 
-            Review.objects.create(user=request.user.userprofile, book=book, rating=rating, comment=comment)
+            # Get the UserProfile instance corresponding to the logged-in user
+            user_profile = get_object_or_404(UserProfile, user=request.user)
+
+            Review.objects.create(user=user_profile, book=book, rating=rating, comment=comment)
 
             # You may want to add a success message or redirect to the book detail page
-            return redirect('book_detail', book_id=book.id)
+            return redirect('book_review', book_id=book.id)
 
         # If form is not valid, render the form again with errors
-        return render(request, self.template_name, {'book':book, 'form': form})
+        return render(request, self.template_name, {'book': book, 'form': form})
