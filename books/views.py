@@ -23,6 +23,7 @@ class BookDetailsView(DetailView):
     template_name = 'books/book_details.html'
     context_object_name = 'book'
     
+@method_decorator(login_required, name='dispatch')
 class BorrowBookView(View):
     template_name = 'book_details.html'  
     
@@ -47,33 +48,52 @@ class BorrowBookView(View):
 
         return HttpResponseBadRequest("Invalid request")
 
-            
-@method_decorator(login_required, name='dispatch')
-class BorrowHistoryListView(ListView):
-    template_name = 'books/borrow_history.html'
-    model = Book
+
+@method_decorator(login_required, name='dispatch')     
+class BorrowHistoryView(View):
+    template_name = 'books/borrow_history.html' 
+
+    def get(self, request, *args, **kwargs):
+        # Retrieve borrow book history transactions for the current user
+        transactions = Transaction.objects.filter(account__user=request.user, transaction_type='Borrow')
+
+        # Pass the transactions to the template
+        context = {'transactions': transactions}
+        return render(request, self.template_name, context)
     
+@method_decorator(login_required, name='dispatch')
+class ReturnBookView(View):
+    def post(self, request, pk):
+        # Get the transaction for the given primary key
+        transaction = get_object_or_404(Transaction, pk=pk)
 
-@login_required
-def return_book(request, pk):
-    transaction = Transaction.objects.get(pk=pk)
+        # Check if the book has already been returned
+        if transaction.returned:
+            messages.error(request, 'This book has already been returned.')
+            return redirect('borrow_history')
 
-    if not transaction.returned and request.user.profile == transaction.user:
-        # Mark the transaction as returned
-        transaction.returned = True
-        transaction.save()
+        # Check if transaction.amount and transaction.account are not None before using them
+        if transaction.amount is not None and transaction.account is not None:
+            # Update the transaction as returned
+            transaction.returned = True
+            transaction.save()
 
-        # Increase user's balance by the borrowed amount
-        transaction.user.balance += transaction.amount
-        transaction.user.save()
+            # Update the book's borrowing status
+            book = transaction.book
+            if book is not None:
+                book.is_borrowed = False
+                book.save()
 
-        messages.success(request, 'Book returned successfully.')
-    else:
-        messages.error(request, 'Invalid return request.')
+            # Update the user's balance
+            user_profile = transaction.account
+            user_profile.balance += transaction.amount
+            user_profile.save()
 
-    return redirect('borrow_history')
+            messages.success(request, 'Book returned successfully.')
+        else:
+            messages.error(request, 'Invalid return request: transaction amount or account is None.')
 
-
+        return redirect('borrow_history')
 
 @method_decorator(login_required, name='dispatch')
 class CreateReviewView(View):

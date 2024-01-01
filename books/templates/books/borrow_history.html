@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 {% block head_title %}
   Borrow History
 {% endblock head_title %}
@@ -9,35 +10,18 @@
         <tr class="bg-cyan-600 rounded-md py-2 px-4 text-white font-bold">
           <th class="px-4 py-2">Borrow Date</th>
           <th class="px-4 py-2">Book Title</th>
+          <th class="px-4 py-2">Amount</th>
           <th class="px-4 py-2">Status</th>
           <th class="px-4 py-2"></th>
           <th class="px-4 py-2"></th>
         </tr>
       </thead>
-      {% comment %} <tbody> {% endcomment %}
-      {% comment %}
-        <tr class="border-b dark:border-neutral-500">
-          <td class="px-4 py-2">{{ transaction.timestamp|date:"F d, Y h:i A" }}</td>
-          <td class="px-4 py-3 text-s border">
-            <span class="px-2 py-1 font-bold leading-tight rounded-sm {% if transaction.get_transaction_type_display == 'Withdrawal' %} text-red-700 bg-red-100 {% elif transaction.get_transaction_type_display == 'Deposite' %} text-green-700 bg-green-100 {% else %} text-yellow-700 bg-yellow-100 {% endif %}">
-              {{ transaction.get_transaction_type_display }}
-            </span>
-          </td>
-          <td class="px-4 py-2">$ {{ transaction.amount|floatformat:2|intcomma }}</td>
-          <td class="px-4 py-2">$ {{ transaction.balance_after_transaction|floatformat:2|intcomma }}</td>
-        </tr>
-      {% endfor %}
-      <tr class="bg-gray-800 text-white">
-        <th class="px-4 py-2 text-right" colspan="3">Current Balance</th>
-        <th class="px-4 py-2 text-left">$ {{ account.balance|floatformat:2|intcomma }}</th>
-      </tr>
-      </tbody> {% endcomment %}
       <tbody>
         {% for transaction in transactions %}
           <tr class="border dark:border-neutral-500">
             <td class="px-4 py-2">{{ transaction.timestamp|date:"F d, Y h:i A" }}</td>
             <td class="px-4 py-2">{{ transaction.book.title }}</td>
-            <td class="px-4 py-2">{{ transaction.amount }}</td>
+            <td class="px-4 py-2">${{ transaction.book.borrowing_price|floatformat:2|intcomma }}</td>
             <td class="px-4 py-2">
               {% if not transaction.returned %}
                 <form method="post" action="{% url 'return_book' pk=transaction.pk %}">
@@ -57,8 +41,17 @@
               </form>
             </td>
           </tr>
-        </tbody>
-      {% endfor %}
+        {% endfor %}
+        <tr class="bg-sky-700 text-white">
+          <th></th>
+          <th class="py-2" colspan="2">
+            <span class="mr-4">Current Balance :</span> ${{ request.user.profile.balance|floatformat:2|intcomma }}
+          </th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+      </tbody>
     </table>
   </div>
 {% endblock content %}
