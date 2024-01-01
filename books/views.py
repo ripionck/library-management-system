@@ -25,9 +25,9 @@ class BookDetailsView(DetailView):
     template_name = 'books/book_details.html'
     context_object_name = 'book'
     
-# @method_decorator(login_required, name='dispatch')
-# class BorrowBookView(View):
-    template_name = 'book_details.html'  
+@method_decorator(login_required, name='dispatch')
+class BorrowBookView(View):
+    template_name = 'books/book_details.html'  
     
     def post(self, request, pk):
         book = get_object_or_404(Book, pk=pk)
@@ -39,10 +39,15 @@ class BookDetailsView(DetailView):
             # Decrease user's balance
             user.balance -= borrowing_price
             user.save()
-            print(user)
-
-            # Add book to borrow history
-            Transaction.objects.create(account=user, book=book, transaction_type='Borrow')
+            
+            transaction = Transaction(
+                        account=user,
+                        amount=book.borrowing_price,
+                        balance_after_transaction=user.balance,
+                        transaction_type=BORROW_BOOK,
+                        book=book
+                    )
+            transaction.save()
 
             messages.success(request, 'Book borrowed successfully.')
             return redirect('borrow_history')
@@ -58,10 +63,11 @@ class BorrowHistoryView(View):
 
     def get(self, request, *args, **kwargs):
         # Retrieve borrow book history transactions for the current user
-        transactions = Transaction.objects.filter(account__user=request.user, transaction_type='Borrow')
+        transactions = Transaction.objects.filter(account__user=request.user, transaction_type=BORROW_BOOK)
 
         # Pass the transactions to the template
         context = {'transactions': transactions}
+        print(context)
         return render(request, self.template_name, context)
     
 @method_decorator(login_required, name='dispatch')
@@ -126,39 +132,6 @@ class CreateReviewView(View):
 
         # If form is not valid, render the form again with errors
         return render(request, self.template_name, {'book': book, 'form': form})
-    
-
-class BorrowBookView(LoginRequiredMixin, View):
-    
-    def get(self, request, id):
-        book = Book.objects.get(pk=id)
-        user = self.request.user.profile
-
-        # Check if the user has already borrowed the same book and it's not returned
-        existing_borrow_book = Transaction.objects.filter(user=user, book=book, is_returned=False).first()
-
-        if existing_borrow_book:
-            messages.error(self.request, 'You have already borrowed this book. You cannot borrow the same book twice at the same time.')
-            return redirect('book_details', pk=id)
-        else:
-            if user.balance >= book.borrowing_price:
-                user.balance -= book.borrowing_price
-                user.save()
-
-                transaction = Transaction(
-                        user=user,
-                        amount=book.borrowing_price,
-                        balance_after_transaction=user.balance,
-                        transaction_type=BORROW_BOOK,
-                        book=book
-                    )
-                transaction.save()
-                messages.success(self.request, f'You have successfully borrowed {book.name} book.')
-
-                return redirect('user_profile')
-            else:
-                messages.error(self.request, "Your current balance is lower than the book price. Deposit Money.")
-                return redirect('deposit_money')
             
 
 #  class ReturnBookView(LoginRequiredMixin, View):
