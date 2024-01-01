@@ -1,4 +1,3 @@
-# Import necessary modules and classes from Django
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.views.generic import FormView

@@ -3,7 +3,7 @@ from .views import BookDetailsView, BookListView, CreateReviewView,BorrowBookVie
 
 urlpatterns = [
     path('', BookListView.as_view(), name='book_list'),
-    path('<int:pk>/', BookDetailsView.as_view(), name='book_details'),
+    path('details/<int:pk>/', BookDetailsView.as_view(), name='book_details'),
     path('borrow/<int:pk>/', BorrowBookView.as_view(), name='borrow_book'),
     path('borrow/history/', BorrowHistoryView.as_view(), name='borrow_history'),
     path('borrow/return/<int:pk>/', ReturnBookView.as_view(), name='return_book'),

@@ -2,15 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView
-from .models import Transaction
-from decimal import Decimal
 from django.urls import reverse_lazy
 from .constants import DEPOSIT
 from .forms import DepositForm
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-
-from users.models import UserProfile
 
 # Create your views here.
 def send_transaction_email(user, amount, subject, template):
