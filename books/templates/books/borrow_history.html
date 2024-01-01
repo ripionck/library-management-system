@@ -23,7 +23,7 @@
             <td class="px-4 py-2">{{ transaction.book.title }}</td>
             <td class="px-4 py-2">${{ transaction.book.borrowing_price|floatformat:2|intcomma }}</td>
             <td class="px-4 py-2">
-              {% if not transaction.returned %}
+              {% if not transaction.is_returned %}
                 <form method="post" action="{% url 'return_book' pk=transaction.pk %}">
                   {% csrf_token %}
                   <button type="submit">Return</button>

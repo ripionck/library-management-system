@@ -34,25 +34,31 @@ class BorrowBookView(View):
         borrowing_price = book.borrowing_price
 
         user, created = UserProfile.objects.get_or_create(user=request.user)
+        # Check if the user has already borrowed the same book and it's not returned
+        existing_borrow_book = Transaction.objects.filter(account=user, book=book, is_returned=False).first()
 
-        if user.balance >= borrowing_price:
-            # Decrease user's balance
-            user.balance -= borrowing_price
-            user.save()
-            
-            transaction = Transaction(
-                        account=user,
-                        amount=book.borrowing_price,
-                        balance_after_transaction=user.balance,
-                        transaction_type=BORROW_BOOK,
-                        book=book
-                    )
-            transaction.save()
-
-            messages.success(request, 'Book borrowed successfully.')
-            return redirect('borrow_history')
+        if existing_borrow_book:
+            messages.error(self.request, 'You have already borrowed this book. You cannot borrow the same book twice at the same time.')
+            return redirect('book_details', pk=pk)
         else:
-            messages.error(request, 'Insufficient balance to borrow this book.')
+            if user.balance >= borrowing_price:
+                # Decrease user's balance
+                user.balance -= borrowing_price
+                user.save()
+            
+                transaction = Transaction(
+                            account=user,
+                            amount=book.borrowing_price,
+                            balance_after_transaction=user.balance,
+                            transaction_type=BORROW_BOOK,
+                            book=book
+                        )
+                transaction.save()
+
+                messages.success(request, 'Book borrowed successfully.')
+                return redirect('borrow_history')
+            else:
+                messages.error(request, 'Insufficient balance to borrow this book.')
 
         return HttpResponseBadRequest("Invalid request")
 
@@ -78,26 +84,20 @@ class ReturnBookView(View):
         print(transaction)
 
         # Check if the book has already been returned
-        if transaction.returned:
+        if transaction.is_returned:
             messages.error(request, 'This book has already been returned.')
             return redirect('borrow_history')
 
         # Check if transaction.amount and transaction.account are not None before using them
         if transaction.amount is not None and transaction.account is not None:
             # Update the transaction as returned
-            transaction.returned = True
+            transaction.is_returned = True
             transaction.save()
 
-            # Update the book's borrowing status
-            book = transaction.book
-            if book is not None:
-                book.is_borrowed = False
-                book.save()
-
             # Update the user's balance
-            user_profile = transaction.account
-            user_profile.balance += transaction.amount
-            user_profile.save()
+            account = transaction.account
+            account.balance += transaction.amount
+            account.save()
 
             messages.success(request, 'Book returned successfully.')
         else:
@@ -133,31 +133,3 @@ class CreateReviewView(View):
         # If form is not valid, render the form again with errors
         return render(request, self.template_name, {'book': book, 'form': form})
             
-
-#  class ReturnBookView(LoginRequiredMixin, View):
-    def get(self, request, id):
-        book = Book.objects.get(pk=id)
-        buyer = self.request.user.profile
-        borrowed_book = Transaction.objects.get(profile=buyer, book=book, is_returned=False)
-        print(borrowed_book.id)
-        if not borrowed_book.is_returned:
-            borrowed_book.is_returned = True
-            borrowed_book.save()            
-            buyer.balance += book.price
-            buyer.save()
-            messages.success(self.request, 'Return Successfull')
-            book.quantity +=1
-            book.save()
-            transaction = Transaction(
-                profile = buyer,
-                amount = book.price,
-                balance_after_transaction = buyer.balance,
-                transaction_type = RETURN_BOOK,
-                book = book,
-                is_returned = True
-            )
-            transaction.save()
-            return redirect('profile')
-        else:
-            messages.error(self.request, 'Already Returned')
-            return redirect('profile')
