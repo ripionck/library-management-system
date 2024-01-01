@@ -6,16 +6,6 @@ from django.views.generic import  DetailView
 from .forms import ReviewForm
 from .models import Book, Review
 from users.models import UserProfile
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-# Email Sending Function
-def send_author_email(user, subject, template):
-        message = render_to_string(template,{
-            'user': user,
-        })
-        send_email = EmailMultiAlternatives(subject, '', to=[user.email])
-        send_email.attach_alternative(message, 'text/html')
-        send_email.send()
         
 # Create your views here.    
 class BookListView(View):

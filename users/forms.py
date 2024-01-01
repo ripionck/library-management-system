@@ -23,7 +23,6 @@ class UserRegistrationForm(UserCreationForm):
 
     def save(self, commit=True):
         # Save the user instance
-        print(self.user)
         our_user = super().save(commit=False)
         if commit:
             our_user.save()
