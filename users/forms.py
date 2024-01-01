@@ -13,7 +13,7 @@ class UserRegistrationForm(UserCreationForm):
     gender = forms.ChoiceField(choices=GENDER_TYPE)
     profession = forms.ChoiceField(choices=PROFESSION_TYPE)
     phone_number = forms.CharField(max_length=12)
-    address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 30}))
+    address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 10}))
 
     class Meta:
         model = User
@@ -65,7 +65,7 @@ class UserUpdateForm(forms.ModelForm):
     profession = forms.ChoiceField(choices=PROFESSION_TYPE)
     phone_number = forms.CharField(max_length=12)
     balance = forms.DecimalField(max_digits=10, decimal_places=2, initial=0)
-    address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 30}))
+    address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 30}))
 
     class Meta:
         model = User

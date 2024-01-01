@@ -5,7 +5,7 @@
 {% endblock head_title %}
 {% block content %}
   <div class="h-screen">
-    <table class="table-auto mx-auto w-full px-5 rounded-xl mt-8 border dark:border-neutral-500">
+    <table class="table-auto mx-auto w-full px-5 rounded-xl border dark:border-neutral-500">
       <thead class="bg-purple-500 text-white text-left">
         <tr class="bg-cyan-600 rounded-md py-2 px-4 text-white font-bold">
           <th class="px-4 py-2">Borrow Date</th>
@@ -26,10 +26,11 @@
               {% if not transaction.is_returned %}
                 <form method="post" action="{% url 'return_book' pk=transaction.pk %}">
                   {% csrf_token %}
-                  <button type="submit">Return</button>
+                  <button type="submit"
+                          class="btn btn-sm border-0 bg-sky-500 hover:bg-sky-700 rounded px-2 py-0.5">Return</button>
                 </form>
               {% else %}
-                <button type="button" disabled>Returned</button>
+                <button type="button" class="text-green-600" disabled>Returned</button>
               {% endif %}
             </td>
             <td class="px-4 py-2">
@@ -37,7 +38,9 @@
                     action="{% url 'book_review' book_id=transaction.book.id %}">
                 {% csrf_token %}
                 <button type="submit"
-                        class="btn btn-sm border-0 bg-sky-500 hover:bg-sky-700 rounded px-2 py-2">Review Book</button>
+                        class="btn btn-sm border-0 bg-sky-500 hover:bg-sky-700 rounded px-2 py-0.5">
+                  Review Book
+                </button>
               </form>
             </td>
           </tr>
