@@ -31,7 +31,7 @@ class FilteredBookListView(ListView):
         category_id = self.kwargs.get('category_id')
         if category_id:
             # Get all books related to the specified category
-            queryset = Book.objects.filter(categories__id=category_id)
+            queryset = Book.objects.filter(category__id=category_id)
         else:
             # If no category is specified, retrieve all books
             queryset = Book.objects.all()

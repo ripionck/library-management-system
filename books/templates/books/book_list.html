@@ -5,17 +5,20 @@
 {% block content %}
   <div class="flex">
     <div class="grid grid-cols-1 pl-8 pt-8">
-      <form method="get" action="{% url 'book_list' %}">
+      <form method="get" action="{% url 'book_list' %}" class="leading-loose">
         {% csrf_token %}
-        <label for="category_filter">Filter by Category:</label>
-        <select name="category_filter" id="category_filter">
+        <label for="category_filter"
+               class="uppercase bg-sky-900 border-0 px-2 py-1 text-white">Filter by Category:</label>
+        <select name="category_filter" id="category_filter" class="py-2">
           <option value="">All Categories</option>
           {% for category in categories %}<option value="{{ category.id }}">{{ category.name }}</option>{% endfor %}
         </select>
-        <button type="submit">Apply Filter</button>
+        <br />
+        <button type="submit"
+                class="uppercase text-white bg-sky-700 hover:bg-sky-900 px-2 mt-2">Apply</button>
       </form>
     </div>
-    <div class="grid gap-x-8 gap-y-4 grid-cols-4 px-8 py-8">
+    <div class="grid gap-x-4 gap-y-4 grid-cols-4 pr-8 py-8">
       {% for book in books %}
         <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white">
           <img src="{{ book.image.url }}" alt="{{ book.title }}" class="w-full h-72">
