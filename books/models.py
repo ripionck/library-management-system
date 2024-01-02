@@ -17,7 +17,7 @@ class Book(models.Model):
     description = models.TextField()
     image = models.ImageField(upload_to='books/uploads', blank=True, null=True)
     borrowing_price = models.DecimalField(max_digits=10, decimal_places=2)
-    categories = models.ManyToManyField('Category', related_name='books')
+    categories = models.ManyToManyField(Category)
     
     def __str__(self):
         return f'{self.title} - {self.author}'

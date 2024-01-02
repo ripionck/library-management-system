@@ -3,8 +3,19 @@
   All Books
 {% endblock head_title %}
 {% block content %}
-  <div class="h-screen">
-    <div class="grid gap-x-8 gap-y-4 grid-cols-4 px-8 pt-8">
+  <div class="flex">
+    <div class="grid grid-cols-1 pl-8 pt-8">
+      <form method="get" action="{% url 'book_list' %}">
+        {% csrf_token %}
+        <label for="category_filter">Filter by Category:</label>
+        <select name="category_filter" id="category_filter">
+          <option value="">All Categories</option>
+          {% for category in categories %}<option value="{{ category.id }}">{{ category.name }}</option>{% endfor %}
+        </select>
+        <button type="submit">Apply Filter</button>
+      </form>
+    </div>
+    <div class="grid gap-x-8 gap-y-4 grid-cols-4 px-8 py-8">
       {% for book in books %}
         <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white">
           <img src="{{ book.image.url }}" alt="{{ book.title }}" class="w-full h-72">

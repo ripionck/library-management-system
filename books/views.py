@@ -6,20 +6,41 @@ from django.views import View
 from transactions.constants import BORROW_BOOK
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.views.generic import  DetailView
+from django.views.generic import  DetailView, ListView
 from .forms import ReviewForm
-from .models import Book, Review
+from .models import Book, Review, Category
 from users.models import UserProfile
 from transactions.models import Transaction
 from transactions.email_utils import send_transaction_email
-        
+   
 # Create your views here.    
 class BookListView(View):
     template_name = 'books/book_list.html'
 
     def get(self, request):
         books = Book.objects.all()
-        return render(request, self.template_name, {'books': books})
+        categories = Category.objects.all()
+        return render(request, self.template_name, {'books': books, 'categories': categories})
+    
+class FilteredBookListView(ListView):
+    model = Book
+    template_name = 'books/book_list.html'
+    context_object_name = 'books'
+
+    def get_queryset(self):
+        category_id = self.kwargs.get('category_id')
+        if category_id:
+            # Get all books related to the specified category
+            queryset = Book.objects.filter(categories__id=category_id)
+        else:
+            # If no category is specified, retrieve all books
+            queryset = Book.objects.all()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context
     
 class BookDetailsView(DetailView):
     model = Book
