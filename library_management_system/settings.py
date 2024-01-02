@@ -27,8 +27,8 @@ environ.Env.read_env()
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-CSRF_TRUSTED_ORIGINS=['http://localhost', 'http://127.0.0.1']
+DEBUG = True
+CSRF_TRUSTED_ORIGINS=['https://library-management-wo36.onrender.com', 'http://127.0.0.1']
 
 ALLOWED_HOSTS = ["*"]
 
