@@ -31,7 +31,7 @@ class FilteredBookListView(ListView):
         category_id = self.kwargs.get('category_id')
         if category_id:
             # Get all books related to the specified category
-            queryset = Book.objects.filter(category__id=category_id)
+            queryset = Book.objects.filter(categories__id=category_id)
         else:
             # If no category is specified, retrieve all books
             queryset = Book.objects.all()
@@ -67,7 +67,6 @@ class BorrowBookView(View):
                 # Decrease user's balance
                 user.balance -= borrowing_price
                 user.save()
-                print(user)
             
                 transaction = Transaction(
                             account=user,
@@ -154,7 +153,6 @@ class CreateReviewView(View):
 
             Review.objects.create(user=user_profile, book=book, rating=rating, comment=comment)
 
-            # You may want to add a success message or redirect to the book detail page
             return redirect('book_review', book_id=book.id)
 
         # If form is not valid, render the form again with errors
