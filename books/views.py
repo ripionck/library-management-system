@@ -6,11 +6,12 @@ from django.views import View
 from transactions.constants import BORROW_BOOK
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.views.generic import  DetailView, ListView
+from django.views.generic import  DetailView
 from .forms import ReviewForm
 from .models import Book, Review
 from users.models import UserProfile
 from transactions.models import Transaction
+from transactions.email_utils import send_transaction_email
         
 # Create your views here.    
 class BookListView(View):
@@ -45,6 +46,7 @@ class BorrowBookView(View):
                 # Decrease user's balance
                 user.balance -= borrowing_price
                 user.save()
+                print(user)
             
                 transaction = Transaction(
                             account=user,
@@ -56,6 +58,8 @@ class BorrowBookView(View):
                 transaction.save()
 
                 messages.success(request, 'Book borrowed successfully.')
+                send_transaction_email(self.request.user, transaction.amount,
+                               "Borrow Book Message", "books/borrow_book_email.html")
                 return redirect('borrow_history')
             else:
                 messages.error(request, 'Insufficient balance to borrow this book.')
@@ -81,7 +85,6 @@ class ReturnBookView(View):
     def post(self, request, pk):
         # Get the transaction for the given primary key
         transaction = get_object_or_404(Transaction, pk=pk)
-        print(transaction)
 
         # Check if the book has already been returned
         if transaction.is_returned:
@@ -98,8 +101,11 @@ class ReturnBookView(View):
             account = transaction.account
             account.balance += transaction.amount
             account.save()
+            print(account)
 
             messages.success(request, 'Book returned successfully.')
+            send_transaction_email(self.request.user, transaction.amount,
+                               "Return Book Message", "books/return_book_email.html")
         else:
             messages.error(request, 'Invalid return request: transaction amount or account is None.')
 

@@ -5,21 +5,9 @@ from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from .constants import DEPOSIT
 from .forms import DepositForm
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
+from .email_utils import send_transaction_email
 
 # Create your views here.
-def send_transaction_email(user, amount, subject, template):
-    message = render_to_string(template, {
-        'user': user,
-        'amount': amount,
-    })
-    send_email = EmailMultiAlternatives(subject, '', to=[user.email])
-    send_email.attach_alternative(message, "text/html")
-    send_email.send()
-        
-
-# Write your views here
 class DepositView(LoginRequiredMixin, CreateView):
     template_name = 'deposit_money.html'
     form_class = DepositForm
