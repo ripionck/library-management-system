@@ -71,3 +71,4 @@ tzdata
 ujson
 virtualenv
 yapf
+zipp
