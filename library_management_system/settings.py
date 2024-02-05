@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import environ
-import dj_database_url
+# import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +28,8 @@ SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-CSRF_TRUSTED_ORIGINS=['https://library-management-wo36.onrender.com', 'http://127.0.0.1']
+CSRF_TRUSTED_ORIGINS = [
+    'https://library-management-wo36.onrender.com', 'http://127.0.0.1']
 
 ALLOWED_HOSTS = ["*"]
 
@@ -96,12 +97,12 @@ WSGI_APPLICATION = 'library_management_system.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 # DATABASES = {
 #     'default': {
@@ -115,13 +116,13 @@ WSGI_APPLICATION = 'library_management_system.wsgi.application'
 # }
 
 
-DATABASES = {
-    'default': dj_database_url.config(
-        # Feel free to alter this value to suit your needs.
-        default='postgres://library_management_v3s3_user:bJ0pJV2hCdjV9YfCADd8DerRgsj6nSD4@dpg-cma024en7f5s73diatog-a.oregon-postgres.render.com/library_management_v3s3',
-        conn_max_age=600
-    )
-}
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         # Feel free to alter this value to suit your needs.
+#         default='postgres://library_management_v3s3_user:bJ0pJV2hCdjV9YfCADd8DerRgsj6nSD4@dpg-cma024en7f5s73diatog-a.oregon-postgres.render.com/library_management_v3s3',
+#         conn_max_age=600
+#     )
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
