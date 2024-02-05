@@ -11,7 +11,7 @@
                class="uppercase bg-sky-900 border-0 px-2 py-1 text-white">Filter by Category:</label>
         <select name="category_filter" id="category_filter" class="py-2">
           <option value="">All Categories</option>
-          {% for category in categories %}<option value="{{ category.id }}">{{ category.name }}</option>{% endfor %}
+          {% for category in categories %}<option value="{{ category.name }}">{{ category.name }}</option>{% endfor %}
         </select>
         <br />
         <button type="submit"
