@@ -4,102 +4,97 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponseBadRequest
 from django.views import View
 from transactions.constants import BORROW_BOOK
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.views.generic import  DetailView, ListView
+from django.views.generic import DetailView
 from .forms import ReviewForm
 from .models import Book, Review, Category
 from users.models import UserProfile
 from transactions.models import Transaction
 from transactions.email_utils import send_transaction_email
-   
-# Create your views here.    
+
+
+# Create your views here.
 class BookListView(View):
     template_name = 'books/book_list.html'
 
-    def get(self, request):
-        books = Book.objects.all()
-        categories = Category.objects.all()
-        return render(request, self.template_name, {'books': books, 'categories': categories})
-    
-class FilteredBookListView(ListView):
-    model = Book
-    template_name = 'books/book_list.html'
-    context_object_name = 'books'
+    def get(self, request, *args, **kwargs):
+        category_name = request.GET.get('category_name')
 
-    def get_queryset(self):
-        category_id = self.kwargs.get('category_id')
-        if category_id:
-            # Get all books related to the specified category
-            queryset = Book.objects.filter(categories__id=category_id)
+        if category_name:
+            books = Book.objects.filter(category__name=category_name)
+            print(books)
         else:
-            # If no category is specified, retrieve all books
-            queryset = Book.objects.all()
-        return queryset
+            books = Book.objects.all()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()
-        return context
-    
+        categories = Category.objects.all()  # Assuming you have a Category model
+
+        return render(request, self.template_name, {'books': books, 'categories': categories})
+
+
 class BookDetailsView(DetailView):
     model = Book
     template_name = 'books/book_details.html'
     context_object_name = 'book'
-    
+
+
 @method_decorator(login_required, name='dispatch')
 class BorrowBookView(View):
-    template_name = 'books/book_details.html'  
-    
+    template_name = 'books/book_details.html'
+
     def post(self, request, pk):
         book = get_object_or_404(Book, pk=pk)
         borrowing_price = book.borrowing_price
 
         user, created = UserProfile.objects.get_or_create(user=request.user)
         # Check if the user has already borrowed the same book and it's not returned
-        existing_borrow_book = Transaction.objects.filter(account=user, book=book, is_returned=False).first()
+        existing_borrow_book = Transaction.objects.filter(
+            account=user, book=book, is_returned=False).first()
 
         if existing_borrow_book:
-            messages.error(self.request, 'You have already borrowed this book. You cannot borrow the same book twice at the same time.')
+            messages.error(
+                self.request, 'You have already borrowed this book. You cannot borrow the same book twice at the same time.')
             return redirect('book_details', pk=pk)
         else:
             if user.balance >= borrowing_price:
                 # Decrease user's balance
                 user.balance -= borrowing_price
                 user.save()
-            
+
                 transaction = Transaction(
-                            account=user,
-                            amount=book.borrowing_price,
-                            balance_after_transaction=user.balance,
-                            transaction_type=BORROW_BOOK,
-                            book=book
-                        )
+                    account=user,
+                    amount=book.borrowing_price,
+                    balance_after_transaction=user.balance,
+                    transaction_type=BORROW_BOOK,
+                    book=book
+                )
                 transaction.save()
 
                 messages.success(request, 'Book borrowed successfully.')
                 send_transaction_email(self.request.user, transaction.amount,
-                               "Borrow Book Message", "books/borrow_book_email.html")
+                                       "Borrow Book Message", "books/borrow_book_email.html")
                 return redirect('borrow_history')
             else:
-                messages.error(request, 'Insufficient balance to borrow this book.')
+                messages.error(
+                    request, 'Insufficient balance to borrow this book.')
 
         return HttpResponseBadRequest("Invalid request")
 
 
-@method_decorator(login_required, name='dispatch')     
+@method_decorator(login_required, name='dispatch')
 class BorrowHistoryView(View):
-    template_name = 'books/borrow_history.html' 
+    template_name = 'books/borrow_history.html'
 
     def get(self, request, *args, **kwargs):
         # Retrieve borrow book history transactions for the current user
-        transactions = Transaction.objects.filter(account__user=request.user, transaction_type=BORROW_BOOK)
+        transactions = Transaction.objects.filter(
+            account__user=request.user, transaction_type=BORROW_BOOK)
 
         # Pass the transactions to the template
         context = {'transactions': transactions}
         print(context)
         return render(request, self.template_name, context)
-    
+
+
 @method_decorator(login_required, name='dispatch')
 class ReturnBookView(View):
     def post(self, request, pk):
@@ -125,11 +120,13 @@ class ReturnBookView(View):
 
             messages.success(request, 'Book returned successfully.')
             send_transaction_email(self.request.user, transaction.amount,
-                               "Return Book Message", "books/return_book_email.html")
+                                   "Return Book Message", "books/return_book_email.html")
         else:
-            messages.error(request, 'Invalid return request: transaction amount or account is None.')
+            messages.error(
+                request, 'Invalid return request: transaction amount or account is None.')
 
         return redirect('borrow_history')
+
 
 @method_decorator(login_required, name='dispatch')
 class CreateReviewView(View):
@@ -151,10 +148,10 @@ class CreateReviewView(View):
             # Get the UserProfile instance corresponding to the logged-in user
             user_profile = get_object_or_404(UserProfile, user=request.user)
 
-            Review.objects.create(user=user_profile, book=book, rating=rating, comment=comment)
+            Review.objects.create(
+                user=user_profile, book=book, rating=rating, comment=comment)
 
             return redirect('book_review', book_id=book.id)
 
         # If form is not valid, render the form again with errors
         return render(request, self.template_name, {'book': book, 'form': form})
-            
